@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Create.css';
-import { FormGroup, Modal, Button, Tabs, Tab, Table } from 'react-bootstrap';
+import { FormGroup, Modal, Button, Tabs, Tab, Table, Checkbox } from 'react-bootstrap';
 
 class Render extends Component {
 
@@ -213,7 +213,7 @@ class Render extends Component {
             });
         }
         props.push(<div>
-            <button className="btn btn-info" onClick={this.addNewValue.bind(this, x, y)}>Add New Value</button>
+            <button className="btn btn-info" onClick={this.addNewValue.bind(this, x, y)}>Add Value</button>
             <br /><br />
         </div>);
         for (var i = 0; i < this.state.sections[y].fields[x].values.length; i++) {
@@ -250,7 +250,7 @@ class Render extends Component {
             });
         }
         props.push(<div>
-            <button className="btn btn-info" onClick={this.addNewValue.bind(this, x, y)}>Add New Column</button>
+            <button className="btn btn-info" onClick={this.addNewValue.bind(this, x, y)}>Add Rating</button>
             <br /><br />
         </div>);
         for (var i = 0; i < this.state.sections[y].fields[x].values.length; i++) {
@@ -280,7 +280,7 @@ class Render extends Component {
             });
         }
         props.push(<div>
-            <button className="btn btn-info" onClick={this.addQuantRow.bind(this, x, y)}>Add New Row</button>
+            <button className="btn btn-info" onClick={this.addQuantRow.bind(this, x, y)}>Add Row</button>
             <br /><br />
         </div>);
         for (var i = 0; i < this.state.sections[y].fields[x].rows.length; i++) {
@@ -327,9 +327,11 @@ class Render extends Component {
                 var prop = this.state.sections[y].fields[x].values[j].label;
                 cols.push(
                     <td>
-                        <input type="checkbox"
+                        <Checkbox
+                            defaultChecked
                             onChange={this.handleCheckboxChange.bind(this, this.state.sections[y].fields[x].values[j].label, x, y, j, i)}
-                            value={this.state.sections[y].fields[x].qualtative[prop]} />
+                            value={this.state.sections[y].fields[x].qualtative[prop]}>
+                        </Checkbox>
                     </td>
                 );
             }
@@ -350,7 +352,7 @@ class Render extends Component {
         var props = [];
         props.push(
             <Tabs defaultActiveKey={1} id="uncontrolled-tab-example">
-                {this.state.sections[y].fields[x].elementType == 5 ? <Tab eventKey={1} title="Columns">
+                {this.state.sections[y].fields[x].elementType == 5 ? <Tab eventKey={1} title="Ratings">
                     <div className="tab-body">
                         {this.createQualtative(field, x, y)}
                     </div>
@@ -388,12 +390,15 @@ class Render extends Component {
         this.setState({ show: false });
     }
 
-    handleShow() {
-        this.setState({ show: true });
+    handleShow(x, y) {
+        this.setState({
+            show: true,
+            x: x,
+            y: y
+        });
     }
 
     saveLayout() {
-        debugger;
         console.log(this.state);
     }
 
@@ -455,7 +460,6 @@ class Render extends Component {
     }
 
     handleCheckboxChange(prop, index, y, j, i, event) {
-        debugger;
         var row = this.state.sections[y].fields[index].rows[i].label;
         if (!this.state.sections[y].fields[index].qualtative[row])
             this.state.sections[y].fields[index].qualtative[row] = {};
@@ -658,33 +662,36 @@ class Render extends Component {
                             </div>
                             <div className="col-xs-3">
                                 {/* {this.state.sections[y].fields[x].elementType} */}
-                                <button className="btn btn-info" onClick={this.handleShow}>
+                                <button className="btn btn-info" onClick={this.handleShow.bind(this, x, y)}>
                                     + More Details
                                 </button>
                                 <button className="btn btn-danger" onClick={this.deleteMetric.bind(this, x, y)}>
                                     - Metric
                                 </button>
-                                <Modal show={this.state.show} onHide={this.handleClose}>
-                                    <Modal.Header closeButton>
-                                        <Modal.Title>Add Properties for {this.state.sections[y].fields[x].label}</Modal.Title>
-                                    </Modal.Header>
-                                    <Modal.Body>
-                                        {this.createProps(this.state.sections[y].fields[x], x, y)}
-                                    </Modal.Body>
-                                    <Modal.Footer>
-                                        <Button onClick={this.handleClose}>Close</Button>
-                                    </Modal.Footer>
-                                </Modal>
+
                                 {/* //need to write based on operator selected */}
                             </div>
                         </FormGroup>
                     </div>);
                     // if()
                 };
+                if (this.state.show) {
+                    form.push(<Modal show={this.state.show} onHide={this.handleClose}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Add Properties for {this.state.sections[this.state.y].fields[this.state.x].label}</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            {this.createProps(this.state.sections[this.state.y].fields[this.state.x], this.state.x, this.state.y)}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button onClick={this.handleClose}>Close</Button>
+                        </Modal.Footer>
+                    </Modal>)
+                }
                 // if()
             };
 
-            form.push(<div className='row'><button className="btn btn-primary col-xs-2" onClick={this.addNewSection}>Add New Section</button></div>);
+            form.push(<div className='row'><button className="btn btn-primary col-xs-2" onClick={this.addNewSection}>Add Section</button></div>);
         }
         return form;
     }
@@ -693,7 +700,7 @@ class Render extends Component {
         return (
             <div className="App create-form">
                 {/* <div className="col-xs-12 row">
-                    <button className="btn btn-primary col-xs-2" onClick={this.addNewRow}>Add New Field</button>
+                    <button className="btn btn-primary col-xs-2" onClick={this.addNewRow}>Add Field</button>
                 </div> */}
                 {this.createForm()}
                 <button className="btn btn-success col-xs-2 save-button" onClick={this.saveLayout}>Save</button>
